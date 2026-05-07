@@ -1,0 +1,12 @@
+{
+  "name": "obf",
+  "version": "1.0.0",
+  "description": "CRYSNOVA Obfuscator - Premium JavaScript Obfuscation Service",
+  "main": "worker.js",
+  "scripts": {
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "javascript-obfuscator": "^4.1.0"
+  }
+}
