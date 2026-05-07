@@ -7,4 +7,4 @@ bucket = "./public"
 
 [[kv_namespaces]]
 binding = "OBFUSCATOR_KV"
-id = "YOUR_KV_ID"
+id = "c6eb219d55a64926a8292564e842cf38"
