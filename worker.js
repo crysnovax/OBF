@@ -339,13 +339,77 @@ function getObfuscationConfig(level) {
 function generateRandomName() {
   return '_0x' + Math.random().toString(36).substring(2, 10);
 }
-
+///!!!
 async function handleObfuscate(code, level) {
   if (!code || code.trim().length === 0) {
     throw new Error('No code provided');
   }
 
   const originalSize = new TextEncoder().encode(code).length;
+
+  if (level === 'heavy') {
+    try {
+      const response = await fetch('https://obfuscator.io/obfuscate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: code,
+          options: {
+            compact: true,
+            controlFlowFlattening: true,
+            controlFlowFlatteningThreshold: 1,
+            deadCodeInjection: true,
+            deadCodeInjectionThreshold: 0.4,
+            debugProtection: true,
+            debugProtectionInterval: 4000,
+            disableConsoleOutput: true,
+            identifierNamesGenerator: 'hexadecimal',
+            log: false,
+            numbersToExpressions: true,
+            renameGlobals: true,
+            selfDefending: true,
+            simplify: true,
+            splitStrings: true,
+            splitStringsChunkLength: 5,
+            stringArray: true,
+            stringArrayCallsTransform: true,
+            stringArrayEncoding: ['rc4'],
+            stringArrayIndexShift: true,
+            stringArrayRotate: true,
+            stringArrayShuffle: true,
+            stringArrayWrappersCount: 5,
+            stringArrayWrappersChainedCalls: true,
+            stringArrayWrappersParametersMaxCount: 5,
+            stringArrayWrappersType: 'function',
+            stringArrayThreshold: 1,
+            transformObjectKeys: true,
+            unicodeEscapeSequence: false
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('External obfuscator failed: ' + response.status);
+      }
+
+      const result = await response.text();
+      const obfuscatedSize = new TextEncoder().encode(result).length;
+      const increase = ((obfuscatedSize - originalSize) / originalSize * 100).toFixed(1);
+
+      return {
+        code: result,
+        stats: {
+          originalSize: (originalSize / 1024).toFixed(1) + ' KB',
+          obfuscatedSize: (obfuscatedSize / 1024).toFixed(1) + ' KB',
+          increase: increase + '%',
+          level: 'heavy'
+        }
+      };
+    } catch (err) {
+      throw new Error('Heavy obfuscation failed: ' + err.message);
+    }
+  }
+
   let result = code;
 
   if (level === 'light') {
@@ -356,13 +420,11 @@ async function handleObfuscate(code, level) {
     });
     Object.keys(varMap).forEach(function(name) {
       var regex = new RegExp('\\b' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g');
-      result = result.replace(regex, function(m) {
-        return varMap[name];
-      });
+      result = result.replace(regex, function(m) { return varMap[name]; });
     });
   }
 
-  if (level === 'medium' || level === 'heavy') {
+  if (level === 'medium') {
     result = result.replace(/`([^`]*)`/g, function(match, str) {
       var encoded = btoa(unescape(encodeURIComponent(str)));
       return '(function(){var _=\'' + encoded + '\';return decodeURIComponent(escape(atob(_)))})()';
@@ -379,13 +441,6 @@ async function handleObfuscate(code, level) {
     });
   }
 
-  if (level === 'heavy') {
-    result = '(function(){' + result + '\n})();';
-    result = 'var _0xdebug=function(){try{console.log=function(){};debugger;}catch(e){}};\n' + result;
-    var deadCode = 'var ' + generateRandomName() + '=function(){var _x=\'' + Math.random().toString(36) + '\';return _x.split(\'\').reverse().join(\'\');};';
-    result = deadCode + '\n' + result;
-  }
-
   const obfuscatedSize = new TextEncoder().encode(result).length;
   const increase = ((obfuscatedSize - originalSize) / originalSize * 100).toFixed(1);
 
@@ -398,8 +453,8 @@ async function handleObfuscate(code, level) {
       level: level
     }
   };
-}
-
+                                                                                      }
+//!!!
 export default {
   async fetch(request, env, ctx) {
     if (request.method === 'OPTIONS') {
