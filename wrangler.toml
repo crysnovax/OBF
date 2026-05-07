@@ -1,0 +1,10 @@
+name = "obf"
+main = "worker.js"
+compatibility_date = "2025-05-07"
+
+[site]
+bucket = "./public"
+
+[[kv_namespaces]]
+binding = "OBFUSCATOR_KV"
+id = "YOUR_KV_ID"
