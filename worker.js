@@ -340,6 +340,7 @@ function generateRandomName() {
   return '_0x' + Math.random().toString(36).substring(2, 10);
 }
 ///!!!
+
 async function handleObfuscate(code, level) {
   if (!code || code.trim().length === 0) {
     throw new Error('No code provided');
@@ -349,50 +350,12 @@ async function handleObfuscate(code, level) {
 
   if (level === 'heavy') {
     try {
-      const response = await fetch('https://obfuscator.io/obfuscate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code: code,
-          options: {
-            compact: true,
-            controlFlowFlattening: true,
-            controlFlowFlatteningThreshold: 1,
-            deadCodeInjection: true,
-            deadCodeInjectionThreshold: 0.4,
-            debugProtection: true,
-            debugProtectionInterval: 4000,
-            disableConsoleOutput: true,
-            identifierNamesGenerator: 'hexadecimal',
-            log: false,
-            numbersToExpressions: true,
-            renameGlobals: true,
-            selfDefending: true,
-            simplify: true,
-            splitStrings: true,
-            splitStringsChunkLength: 5,
-            stringArray: true,
-            stringArrayCallsTransform: true,
-            stringArrayEncoding: ['rc4'],
-            stringArrayIndexShift: true,
-            stringArrayRotate: true,
-            stringArrayShuffle: true,
-            stringArrayWrappersCount: 5,
-            stringArrayWrappersChainedCalls: true,
-            stringArrayWrappersParametersMaxCount: 5,
-            stringArrayWrappersType: 'function',
-            stringArrayThreshold: 1,
-            transformObjectKeys: true,
-            unicodeEscapeSequence: false
-          }
-        })
-      });
-
+      const response = await fetch('https://apis.prexzyvilla.site/tools/obfextreme?code=' + encodeURIComponent(code) + '&encoding=');
       if (!response.ok) {
-        throw new Error('External obfuscator failed: ' + response.status);
+        throw new Error('Extreme obfuscator failed: ' + response.status);
       }
-
-      const result = await response.text();
+      const data = await response.json();
+      const result = data.result || data.code || data.data || await response.text();
       const obfuscatedSize = new TextEncoder().encode(result).length;
       const increase = ((obfuscatedSize - originalSize) / originalSize * 100).toFixed(1);
 
@@ -406,7 +369,32 @@ async function handleObfuscate(code, level) {
         }
       };
     } catch (err) {
-      throw new Error('Heavy obfuscation failed: ' + err.message);
+      throw new Error('Extreme obfuscation failed: ' + err.message);
+    }
+  }
+
+  if (level === 'medium') {
+    try {
+      const response = await fetch('https://apis.prexzyvilla.site/tools/obfhigh?code=' + encodeURIComponent(code) + '&encoding=');
+      if (!response.ok) {
+        throw new Error('High obfuscator failed: ' + response.status);
+      }
+      const data = await response.json();
+      const result = data.result || data.code || data.data || await response.text();
+      const obfuscatedSize = new TextEncoder().encode(result).length;
+      const increase = ((obfuscatedSize - originalSize) / originalSize * 100).toFixed(1);
+
+      return {
+        code: result,
+        stats: {
+          originalSize: (originalSize / 1024).toFixed(1) + ' KB',
+          obfuscatedSize: (obfuscatedSize / 1024).toFixed(1) + ' KB',
+          increase: increase + '%',
+          level: 'medium'
+        }
+      };
+    } catch (err) {
+      throw new Error('High obfuscation failed: ' + err.message);
     }
   }
 
@@ -424,23 +412,6 @@ async function handleObfuscate(code, level) {
     });
   }
 
-  if (level === 'medium') {
-    result = result.replace(/`([^`]*)`/g, function(match, str) {
-      var encoded = btoa(unescape(encodeURIComponent(str)));
-      return '(function(){var _=\'' + encoded + '\';return decodeURIComponent(escape(atob(_)))})()';
-    });
-    result = result.replace(/"([^"]*)"/g, function(match, str) {
-      if (str.length < 5) return match;
-      var encoded = btoa(unescape(encodeURIComponent(str)));
-      return '(function(){var _=\'' + encoded + '\';return decodeURIComponent(escape(atob(_)))})()';
-    });
-    result = result.replace(/'([^']*)'/g, function(match, str) {
-      if (str.length < 5) return match;
-      var encoded = btoa(unescape(encodeURIComponent(str)));
-      return '(function(){var _=\'' + encoded + '\';return decodeURIComponent(escape(atob(_)))})()';
-    });
-  }
-
   const obfuscatedSize = new TextEncoder().encode(result).length;
   const increase = ((obfuscatedSize - originalSize) / originalSize * 100).toFixed(1);
 
@@ -453,7 +424,7 @@ async function handleObfuscate(code, level) {
       level: level
     }
   };
-                                                                                      }
+          }
 //!!!
 export default {
   async fetch(request, env, ctx) {
