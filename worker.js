@@ -350,52 +350,36 @@ async function handleObfuscate(code, level) {
 
   if (level === 'heavy') {
     try {
-      const response = await fetch('https://apis.prexzyvilla.site/tools/obfextreme?code=' + encodeURIComponent(code) + '&encoding=');
-      if (!response.ok) {
-        throw new Error('Extreme obfuscator failed: ' + response.status);
-      }
+      const response = await fetch('https://apis.prexzyvilla.site/tools/obfextreme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code, encoding: '' })
+      });
+      if (!response.ok) throw new Error('Extreme obfuscator failed: ' + response.status);
       const data = await response.json();
-      const result = data.result || data.code || data.data || await response.text();
+      const result = data.result || data.code || data.data || '';
+      if (!result) throw new Error('Empty response from API');
       const obfuscatedSize = new TextEncoder().encode(result).length;
       const increase = ((obfuscatedSize - originalSize) / originalSize * 100).toFixed(1);
-
-      return {
-        code: result,
-        stats: {
-          originalSize: (originalSize / 1024).toFixed(1) + ' KB',
-          obfuscatedSize: (obfuscatedSize / 1024).toFixed(1) + ' KB',
-          increase: increase + '%',
-          level: 'heavy'
-        }
-      };
-    } catch (err) {
-      throw new Error('Extreme obfuscation failed: ' + err.message);
-    }
+      return { code: result, stats: { originalSize: (originalSize / 1024).toFixed(1) + ' KB', obfuscatedSize: (obfuscatedSize / 1024).toFixed(1) + ' KB', increase: increase + '%', level: 'heavy' } };
+    } catch (err) { throw new Error('Extreme obfuscation failed: ' + err.message); }
   }
 
   if (level === 'medium') {
     try {
-      const response = await fetch('https://apis.prexzyvilla.site/tools/obfhigh?code=' + encodeURIComponent(code) + '&encoding=');
-      if (!response.ok) {
-        throw new Error('High obfuscator failed: ' + response.status);
-      }
+      const response = await fetch('https://apis.prexzyvilla.site/tools/obfhigh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code, encoding: '' })
+      });
+      if (!response.ok) throw new Error('High obfuscator failed: ' + response.status);
       const data = await response.json();
-      const result = data.result || data.code || data.data || await response.text();
+      const result = data.result || data.code || data.data || '';
+      if (!result) throw new Error('Empty response from API');
       const obfuscatedSize = new TextEncoder().encode(result).length;
       const increase = ((obfuscatedSize - originalSize) / originalSize * 100).toFixed(1);
-
-      return {
-        code: result,
-        stats: {
-          originalSize: (originalSize / 1024).toFixed(1) + ' KB',
-          obfuscatedSize: (obfuscatedSize / 1024).toFixed(1) + ' KB',
-          increase: increase + '%',
-          level: 'medium'
-        }
-      };
-    } catch (err) {
-      throw new Error('High obfuscation failed: ' + err.message);
-    }
+      return { code: result, stats: { originalSize: (originalSize / 1024).toFixed(1) + ' KB', obfuscatedSize: (obfuscatedSize / 1024).toFixed(1) + ' KB', increase: increase + '%', level: 'medium' } };
+    } catch (err) { throw new Error('High obfuscation failed: ' + err.message); }
   }
 
   let result = code;
@@ -414,17 +398,8 @@ async function handleObfuscate(code, level) {
 
   const obfuscatedSize = new TextEncoder().encode(result).length;
   const increase = ((obfuscatedSize - originalSize) / originalSize * 100).toFixed(1);
-
-  return {
-    code: result,
-    stats: {
-      originalSize: (originalSize / 1024).toFixed(1) + ' KB',
-      obfuscatedSize: (obfuscatedSize / 1024).toFixed(1) + ' KB',
-      increase: increase + '%',
-      level: level
-    }
-  };
-          }
+  return { code: result, stats: { originalSize: (originalSize / 1024).toFixed(1) + ' KB', obfuscatedSize: (obfuscatedSize / 1024).toFixed(1) + ' KB', increase: increase + '%', level: level } };
+}
 //!!!
 export default {
   async fetch(request, env, ctx) {
